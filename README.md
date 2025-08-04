@@ -18,7 +18,7 @@ Client-side processing for privacy & speed
 Responsive design for all devices
 This project taught me about image processing algorithms, file compression techniques, and creating intuitive user interfaces. The entire application runs in the browser, ensuring user privacy while delivering professional-grade results.
 
-Try it out: [Your demo link here]
+Try it out: (https://image-resize-weld.vercel.app/)   
 #WebDevelopment #ImageProcessing #JavaScript #StudentDeveloper #BSCIT #FrontendDevelopment #UIUX #ProductLaunch
 
 <img width="1748" height="903" alt="Screenshot 2025-08-04 115943" src="https://github.com/user-attachments/assets/dbf09962-f259-4d0c-a0ff-0b1790a477bb" />
