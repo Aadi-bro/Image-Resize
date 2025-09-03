@@ -11,7 +11,7 @@ let currentMode = null; // neutral at start
 // DOM Elements
 // ===============================
 
-// Image elements
+// Image
 const uploadZone = document.getElementById('uploadZone');
 const fileInput = document.getElementById('fileInput');
 const controlsSection = document.getElementById('controlsSection');
@@ -29,7 +29,7 @@ const processedDimensions = document.getElementById('processedDimensions');
 const compressionRatio = document.getElementById('compressionRatio');
 const sizeReduction = document.getElementById('sizeReduction');
 
-// PDF elements
+// PDF
 const pdfUploadSection = document.getElementById('pdfUploadSection');
 const pdfFileInput = document.getElementById('pdfFileInput');
 const pdfControlsSection = document.getElementById('pdfControlsSection');
@@ -47,10 +47,6 @@ const pdfSizeReduction = document.getElementById('pdfSizeReduction');
 const pdfOriginalName = document.getElementById('pdfOriginalName');
 const pdfCompressedName = document.getElementById('pdfCompressedName');
 
-// Optional checkboxes (if exist)
-const pdfOptimizeFonts = document.getElementById('pdfOptimizeFonts');
-const pdfFlattenForms = document.getElementById('pdfFlattenForms');
-
 // ===============================
 // Helpers
 // ===============================
@@ -62,44 +58,17 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
 }
 
-// Hide everything (reset UI)
 function hideAllSections() {
-    // Upload areas
-    uploadZone.parentElement.style.display = 'none';
-    pdfUploadSection.style.display = 'none';
+    // Hide upload sections too
+    if (uploadZone && uploadZone.parentElement) uploadZone.parentElement.style.display = 'none';
+    if (pdfUploadSection) pdfUploadSection.style.display = 'none';
 
-    // Image UI
     controlsSection.style.display = 'none';
     previewSection.style.display = 'none';
-    originalImageEl.src = '';
-    processedImageEl.src = '';
-    originalSize.textContent = '';
-    originalDimensions.textContent = '';
-    processedSize.textContent = '';
-    processedDimensions.textContent = '';
-    compressionRatio.textContent = '-';
-    sizeReduction.textContent = '-';
-
-    // PDF UI
     pdfControlsSection.style.display = 'none';
     pdfPreviewSection.style.display = 'none';
-    pdfOriginalSize.textContent = '';
-    pdfOriginalPages.textContent = '';
-    pdfCompressedSize.textContent = '';
-    pdfReduction.textContent = '-';
-    pdfCompressionRatio.textContent = '-';
-    pdfSizeReduction.textContent = '-';
-    pdfOriginalName.textContent = '';
-    pdfCompressedName.textContent = '';
-
-    // Clear preview iframes
-    const of = document.getElementById('pdfOriginalFrame');
-    const cf = document.getElementById('pdfCompressedFrame');
-    if (of) of.src = 'about:blank';
-    if (cf) cf.src = 'about:blank';
 }
 
-// Mode switcher
 function setActiveMode(mode) {
     currentMode = mode;
     hideAllSections();
@@ -109,15 +78,14 @@ function setActiveMode(mode) {
     if (msg) msg.style.display = 'none';
 
     if (mode === 'image') {
-        uploadZone.parentElement.style.display = 'block';
+        if (uploadZone && uploadZone.parentElement) uploadZone.parentElement.style.display = 'block';
         resetPdfApp();
     } else if (mode === 'pdf') {
-        pdfUploadSection.style.display = 'block';
+        if (pdfUploadSection) pdfUploadSection.style.display = 'block';
         resetApp();
     }
 }
 
-// Buttons from HTML
 function showImageMode() { setActiveMode('image'); }
 function showPdfMode() { setActiveMode('pdf'); }
 
@@ -146,9 +114,7 @@ function resetApp() {
 }
 
 uploadZone.addEventListener("click", () => fileInput.click());
-fileInput.addEventListener("change", handleFile);
-
-function handleFile(e) {
+fileInput.addEventListener("change", e => {
     const file = e.target.files[0];
     if (!file || !file.type.startsWith("image/")) {
         alert("Please select a valid image file");
@@ -168,7 +134,7 @@ function handleFile(e) {
         };
     };
     reader.readAsDataURL(file);
-}
+});
 
 qualitySlider.addEventListener("input", () => {
     qualityValue.textContent = qualitySlider.value;
@@ -209,29 +175,11 @@ compressBtn.addEventListener("click", () => {
 function resetPdfApp() {
     originalPdfFile = null;
     compressedPdfBytes = null;
-
     pdfFileInput.value = "";
     pdfQualitySlider.value = 50;
     pdfQualityValue.textContent = "50";
-    if (pdfOptimizeFonts) pdfOptimizeFonts.checked = true;
-    if (pdfFlattenForms) pdfFlattenForms.checked = true;
-
     pdfControlsSection.style.display = "none";
     pdfPreviewSection.style.display = "none";
-
-    pdfOriginalSize.textContent = "";
-    pdfOriginalPages.textContent = "";
-    pdfCompressedSize.textContent = "";
-    pdfReduction.textContent = "-";
-    pdfCompressionRatio.textContent = "-";
-    pdfSizeReduction.textContent = "-";
-    pdfOriginalName.textContent = "";
-    pdfCompressedName.textContent = "";
-
-    const of = document.getElementById('pdfOriginalFrame');
-    const cf = document.getElementById('pdfCompressedFrame');
-    if (of) of.src = 'about:blank';
-    if (cf) cf.src = 'about:blank';
 }
 
 pdfFileInput.addEventListener("change", e => {
@@ -249,12 +197,6 @@ pdfFileInput.addEventListener("change", e => {
     pdfOriginalName.textContent = file.name;
     pdfCompressedName.textContent = `compressed-${file.name}`;
     pdfControlsSection.style.display = 'block';
-
-    // Preview original
-    const url = URL.createObjectURL(file);
-    const originalFrame = document.getElementById("pdfOriginalFrame");
-    if (originalFrame) originalFrame.src = url;
-
     pdfOriginalPages.textContent = 'Multiple pages'; // simplified
 });
 
@@ -287,29 +229,22 @@ pdfDownloadBtn.addEventListener("click", () => {
     }
     const blob = new Blob([new Uint8Array(compressedPdfBytes)], { type: "application/pdf" });
     const url = URL.createObjectURL(blob);
-
-    const compressedFrame = document.getElementById("pdfCompressedFrame");
-    if (compressedFrame) compressedFrame.src = url;
-
     const a = document.createElement("a");
     a.href = url;
     a.download = pdfCompressedName.textContent || "compressed.pdf";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-
     setTimeout(() => URL.revokeObjectURL(url), 60000);
 });
 
 // ===============================
-// Neutral Landing on Refresh
+// Neutral Landing
 // ===============================
 document.addEventListener('DOMContentLoaded', () => {
     resetApp();
     resetPdfApp();
     hideAllSections();
-    // show only landing message + buttons
     const msg = document.getElementById('landingMessage');
     if (msg) msg.style.display = 'block';
-});
-
+});  
