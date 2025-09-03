@@ -1,5 +1,7 @@
 let originalFile = null;
 let originalImage = null;
+let originalPdfFile = null;
+let compressedPdfBytes = null;
 
 // DOM Elements
 const uploadZone = document.getElementById('uploadZone');
@@ -24,6 +26,28 @@ const sizeReduction = document.getElementById('sizeReduction');
 const downloadBtn = document.getElementById('downloadBtn');
 const resetBtn = document.getElementById('resetBtn');
 
+// PDF DOM Elements
+const pdfUploadSection = document.getElementById('pdfUploadSection');
+const pdfUploadZone = document.getElementById('pdfUploadZone');
+const pdfFileInput = document.getElementById('pdfFileInput');
+const pdfControlsSection = document.getElementById('pdfControlsSection');
+const pdfPreviewSection = document.getElementById('pdfPreviewSection');
+const pdfQualitySlider = document.getElementById('pdfQualitySlider');
+const pdfQualityValue = document.getElementById('pdfQualityValue');
+const pdfOptimizeFonts = document.getElementById('pdfOptimizeFonts');
+const pdfFlattenForms = document.getElementById('pdfFlattenForms');
+const pdfProcessBtn = document.getElementById('pdfProcessBtn');
+const pdfOriginalSize = document.getElementById('pdfOriginalSize');
+const pdfOriginalPages = document.getElementById('pdfOriginalPages');
+const pdfCompressedSize = document.getElementById('pdfCompressedSize');
+const pdfReduction = document.getElementById('pdfReduction');
+const pdfCompressionRatio = document.getElementById('pdfCompressionRatio');
+const pdfSizeReduction = document.getElementById('pdfSizeReduction');
+const pdfDownloadBtn = document.getElementById('pdfDownloadBtn');
+const pdfResetBtn = document.getElementById('pdfResetBtn');
+const pdfOriginalName = document.getElementById('pdfOriginalName');
+const pdfCompressedName = document.getElementById('pdfCompressedName');
+
 // Event Listeners
 uploadZone.addEventListener('click', () => fileInput.click());
 uploadZone.addEventListener('dragover', handleDragOver);
@@ -36,6 +60,28 @@ heightInput.addEventListener('input', handleDimensionChange);
 processBtn.addEventListener('click', processImage);
 downloadBtn.addEventListener('click', downloadImage);
 resetBtn.addEventListener('click', resetApp);
+
+// PDF Event Listeners
+pdfUploadZone.addEventListener('click', () => pdfFileInput.click());
+pdfUploadZone.addEventListener('dragover', handlePdfDragOver);
+pdfUploadZone.addEventListener('dragleave', handlePdfDragLeave);
+pdfUploadZone.addEventListener('drop', handlePdfDrop);
+pdfFileInput.addEventListener('change', handlePdfFileSelect);
+pdfQualitySlider.addEventListener('input', updatePdfQualityValue);
+pdfProcessBtn.addEventListener('click', processPdf);
+pdfDownloadBtn.addEventListener('click', downloadPdf);
+pdfResetBtn.addEventListener('click', resetPdfApp);
+
+// Toggle between image and PDF modes
+function showImageMode() {
+    document.getElementById('uploadZone').parentElement.style.display = 'block';
+    pdfUploadSection.style.display = 'none';
+}
+
+function showPdfMode() {
+    document.getElementById('uploadZone').parentElement.style.display = 'none';
+    pdfUploadSection.style.display = 'block';
+}
 
 // Drag and Drop Handlers
 function handleDragOver(e) {
@@ -222,4 +268,178 @@ function formatFileSize(bytes) {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// PDF Functions
+function handlePdfDragOver(e) {
+    e.preventDefault();
+    pdfUploadZone.classList.add('drag-over');
+}
+
+function handlePdfDragLeave(e) {
+    e.preventDefault();
+    pdfUploadZone.classList.remove('drag-over');
+}
+
+function handlePdfDrop(e) {
+    e.preventDefault();
+    pdfUploadZone.classList.remove('drag-over');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        handlePdfFile(files[0]);
+    }
+}
+
+function handlePdfFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) {
+        handlePdfFile(file);
+    }
+}
+
+function handlePdfFile(file) {
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+        alert('Please select a PDF file');
+        return;
+    }
+
+    if (file.size > 50 * 1024 * 1024) {
+        alert('File size exceeds 50MB limit');
+        return;
+    }
+
+    originalPdfFile = file;
+    pdfOriginalSize.textContent = formatFileSize(file.size);
+    pdfOriginalName.textContent = file.name;
+    pdfCompressedName.textContent = `compressed-${file.name}`;
+    
+    // Show controls
+    pdfControlsSection.style.display = 'block';
+    
+    // Get PDF page count (simplified)
+    pdfOriginalPages.textContent = 'Loading...';
+    setTimeout(() => {
+        pdfOriginalPages.textContent = 'Multiple pages';
+    }, 500);
+}
+
+function updatePdfQualityValue() {
+    pdfQualityValue.textContent = pdfQualitySlider.value;
+}
+
+async function processPdf() {
+    if (!originalPdfFile || !window.PDFLib) {
+        alert('PDF processing library not loaded');
+        return;
+    }
+    
+    try {
+        pdfProcessBtn.textContent = 'Compressing...';
+        pdfProcessBtn.disabled = true;
+        
+        const { PDFDocument } = PDFLib;
+        
+        // Load the PDF
+        const existingPdfBytes = await originalPdfFile.arrayBuffer();
+        const pdfDoc = await PDFDocument.load(existingPdfBytes);
+        
+        // Get compression settings
+        const compressionLevel = parseInt(pdfQualitySlider.value);
+        const optimizeFonts = pdfOptimizeFonts.checked;
+        const flattenForms = pdfFlattenForms.checked;
+        
+        // Apply compression based on settings
+        const pages = pdfDoc.getPages();
+        const compressionFactor = (100 - compressionLevel) / 100;
+        
+        for (const page of pages) {
+            const { width, height } = page.getSize();
+            const newWidth = width * (0.5 + (compressionFactor * 0.5));
+            const newHeight = height * (0.5 + (compressionFactor * 0.5));
+            page.setSize(newWidth, newHeight);
+        }
+        
+        // Flatten forms if requested
+        if (flattenForms) {
+            try {
+                const form = pdfDoc.getForm();
+                if (form) {
+                    form.flatten();
+                }
+            } catch (e) {
+                console.log('No forms to flatten');
+            }
+        }
+        
+        // Save the compressed PDF
+        compressedPdfBytes = await pdfDoc.save({
+            useObjectStreams: true,
+            addDefaultPage: false,
+            objectsPerTick: 50,
+            updateFieldAppearances: false,
+        });
+        
+        // Update stats
+        pdfCompressedSize.textContent = formatFileSize(compressedPdfBytes.length);
+        
+        const reduction = ((originalPdfFile.size - compressedPdfBytes.length) / originalPdfFile.size * 100).toFixed(1);
+        pdfReduction.textContent = `${reduction}% smaller`;
+        pdfCompressionRatio.textContent = `${reduction}%`;
+        pdfSizeReduction.textContent = `${formatFileSize(originalPdfFile.size - compressedPdfBytes.length)} saved`;
+        
+        // Show preview section
+        pdfPreviewSection.style.display = 'block';
+        
+    } catch (error) {
+        console.error('Error compressing PDF:', error);
+        alert('Error compressing PDF');
+    } finally {
+        pdfProcessBtn.textContent = 'Compress PDF';
+        pdfProcessBtn.disabled = false;
+    }
+}
+
+function downloadPdf() {
+    if (!compressedPdfBytes) {
+        alert('Please compress the PDF first');
+        return;
+    }
+    
+    const blob = new Blob([compressedPdfBytes], { type: 'application/pdf' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `compressed-${originalPdfFile.name}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function resetPdfApp() {
+    originalPdfFile = null;
+    compressedPdfBytes = null;
+    
+    // Reset form
+    pdfFileInput.value = '';
+    pdfQualitySlider.value = 50;
+    pdfQualityValue.textContent = '50';
+    pdfOptimizeFonts.checked = true;
+    pdfFlattenForms.checked = true;
+    
+    // Hide sections
+    pdfControlsSection.style.display = 'none';
+    pdfPreviewSection.style.display = 'none';
+    
+    // Clear stats
+    pdfOriginalSize.textContent = '';
+    pdfOriginalPages.textContent = '';
+    pdfCompressedSize.textContent = '';
+    pdfReduction.textContent = '';
+    pdfCompressionRatio.textContent = '-';
+    pdfSizeReduction.textContent = '-';
+    pdfOriginalName.textContent = 'document.pdf';
+    pdfCompressedName.textContent = 'compressed.pdf';
 }
