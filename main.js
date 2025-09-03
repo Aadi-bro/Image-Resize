@@ -402,3 +402,50 @@ async function processPdf() {
         pdfProcessBtn.disabled = false;
     }
 }
+
+// Download compressed PDF
+function downloadPdf() {
+    if (!compressedPdfBytes) {
+        alert("No compressed PDF available for download");
+        return;
+    }
+
+    const blob = new Blob([compressedPdfBytes], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = pdfCompressedName.textContent || "compressed.pdf";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+}
+
+// Reset PDF app
+function resetPdfApp() {
+    originalPdfFile = null;
+    compressedPdfBytes = null;
+
+    // Reset form
+    pdfFileInput.value = "";
+    pdfQualitySlider.value = 50;
+    pdfQualityValue.textContent = "50";
+    pdfOptimizeFonts.checked = true;
+    pdfFlattenForms.checked = true;
+
+    // Hide sections
+    pdfControlsSection.style.display = "none";
+    pdfPreviewSection.style.display = "none";
+
+    // Clear stats
+    pdfOriginalSize.textContent = "";
+    pdfOriginalPages.textContent = "";
+    pdfCompressedSize.textContent = "";
+    pdfReduction.textContent = "-";
+    pdfCompressionRatio.textContent = "-";
+    pdfSizeReduction.textContent = "-";
+    pdfOriginalName.textContent = "";
+    pdfCompressedName.textContent = "";
+}
