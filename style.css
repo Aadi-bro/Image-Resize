@@ -415,6 +415,38 @@ body {
     font-size: 0.875rem;
 }
 
+/* PDF Preview Styles */
+.pdf-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    background: var(--muted);
+    border-radius: 0.5rem;
+    border: 1px solid var(--border);
+    margin-bottom: 0.5rem;
+}
+
+.pdf-icon {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.7;
+}
+
+.pdf-name {
+    font-size: 0.875rem;
+    color: var(--muted-foreground);
+    text-align: center;
+    word-break: break-all;
+    padding: 0 1rem;
+}
+
+/* Hide sections initially */
+#pdfUploadSection {
+    display: none;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .title {
