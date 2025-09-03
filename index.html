@@ -22,6 +22,10 @@
         <header class="header">
             <h1 class="title">Simple Image Resizer</h1>
             <p class="subtitle">Compress and resize your images with ease</p>
+            <div style="margin-top: 1rem;">
+                <button onclick="showImageMode()" class="upload-btn" style="margin-right: 1rem;">Image Mode</button>
+                <button onclick="showPdfMode()" class="upload-btn">PDF Mode</button>
+            </div>
         </header>
 
         <!-- Features Cards -->
@@ -55,6 +59,19 @@
                         <button class="upload-btn">Choose Image</button>
                     </div>
                     <input type="file" id="fileInput" accept="image/*" hidden>
+                </div>
+            </div>
+
+            <!-- PDF Upload Area -->
+            <div class="upload-section" id="pdfUploadSection">
+                <div class="upload-zone" id="pdfUploadZone">
+                    <div class="upload-content">
+                        <div class="upload-icon">📄</div>
+                        <h3>Drop your PDF here</h3>
+                        <p>or click to browse</p>
+                        <button class="upload-btn">Choose PDF</button>
+                    </div>
+                    <input type="file" id="pdfFileInput" accept=".pdf" hidden>
                 </div>
             </div>
 
@@ -95,6 +112,35 @@
                     </div>
 
                     <button id="processBtn" class="process-btn">Process Image</button>
+                </div>
+            </div>
+
+            <!-- PDF Controls Section -->
+            <div class="controls-section" id="pdfControlsSection" style="display: none;">
+                <div class="controls-card">
+                    <h3>PDF Compression Settings</h3>
+                    
+                    <div class="control-group">
+                        <label for="pdfQualitySlider">Compression Level: <span id="pdfQualityValue">50</span>%</label>
+                        <input type="range" id="pdfQualitySlider" min="10" max="90" value="50" class="slider">
+                        <small style="color: var(--muted-foreground); font-size: 0.875rem;">Lower = smaller file size</small>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="pdfOptimizeFonts" checked>
+                            Optimize fonts
+                        </label>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="pdfFlattenForms" checked>
+                            Flatten forms
+                        </label>
+                    </div>
+
+                    <button id="pdfProcessBtn" class="process-btn">Compress PDF</button>
                 </div>
             </div>
 
@@ -140,6 +186,55 @@
                     </div>
                 </div>
             </div>
+
+            <!-- PDF Preview Section -->
+            <div class="preview-section" id="pdfPreviewSection" style="display: none;">
+                <div class="preview-card">
+                    <h3>PDF Compression Results</h3>
+                    
+                    <div class="image-comparison">
+                        <div class="image-container">
+                            <h4>Original PDF</h4>
+                            <div class="pdf-preview" id="pdfOriginalPreview">
+                                <div class="pdf-icon">📄</div>
+                                <div class="pdf-name" id="pdfOriginalName">document.pdf</div>
+                            </div>
+                            <div class="image-info">
+                                <span id="pdfOriginalSize"></span>
+                                <span id="pdfOriginalPages"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="image-container">
+                            <h4>Compressed PDF</h4>
+                            <div class="pdf-preview" id="pdfCompressedPreview">
+                                <div class="pdf-icon">📄</div>
+                                <div class="pdf-name" id="pdfCompressedName">compressed.pdf</div>
+                            </div>
+                            <div class="image-info">
+                                <span id="pdfCompressedSize"></span>
+                                <span id="pdfReduction"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat">
+                            <span class="stat-label">Compression Ratio:</span>
+                            <span id="pdfCompressionRatio" class="stat-value">-</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Size Reduction:</span>
+                            <span id="pdfSizeReduction" class="stat-value">-</span>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="pdfDownloadBtn" class="download-btn">Download PDF</button>
+                        <button id="pdfResetBtn" class="reset-btn">Upload New PDF</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Footer -->
@@ -155,5 +250,6 @@
     </div>
 
     <script src="main.js"></script>
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 </body>
 </html>
