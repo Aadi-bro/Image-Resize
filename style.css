@@ -253,6 +253,10 @@ body {
 .checkbox-label input[type="checkbox"] {
     width: auto;
 }
+#loadingOverlay {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
 
 .process-btn {
     width: 100%;
@@ -465,3 +469,4 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
