@@ -5,15 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simple Image Resizer</title>
     <meta name="description" content="Simple and easy-to-use image resizing and compression tool. Optimize your images quickly and efficiently.">
-    <meta name="author" content="Aditya">
-    <meta name="keywords" content="image resizer, image compression, optimize images, reduce file size, image converter">
-    
-    <meta property="og:title" content="Simple Image Resizer">
-    <meta property="og:description" content="Simple and easy-to-use image resizing and compression tool. Optimize your images quickly and efficiently.">
-    <meta property="og:type" content="website">
-    
-    <meta name="twitter:card" content="summary_large_image">
-    
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,13 +13,13 @@
         <header class="header">
             <h1 class="title">Simple Image Resizer</h1>
             <p class="subtitle">Compress and resize your images with ease</p>
-            <div style="margin-top: 1rem;">
-                <button onclick="showImageMode()" class="upload-btn" style="margin-right: 1rem;">Image Mode</button>
-                <button onclick="showPdfMode()" class="upload-btn">PDF Mode</button>
+            <div class="mode-buttons">
+                <button onclick="showImageMode()" id="imageModeBtn" class="mode-btn active">Image Mode</button>
+                <button onclick="showPdfMode()" id="pdfModeBtn" class="mode-btn">PDF Mode</button>
             </div>
         </header>
 
-        <!-- Features Cards -->
+        <!-- Features -->
         <div class="features">
             <div class="feature-card">
                 <div class="feature-icon">📸</div>
@@ -47,192 +38,157 @@
             </div>
         </div>
 
-        <!-- Main App -->
-        <div class="app-container">
-            <!-- Upload Area -->
-            <div class="upload-section">
-                <div class="upload-zone" id="uploadZone">
-                    <div class="upload-content">
-                        <div class="upload-icon">📁</div>
-                        <h3>Drop your image here</h3>
-                        <p>or click to browse</p>
-                        <button class="upload-btn">Choose Image</button>
-                    </div>
-                    <input type="file" id="fileInput" accept="image/*" hidden>
-                </div>
+        <!-- Loading Overlay -->
+        <div id="loadingOverlay" class="loading-overlay">
+            <div class="loading-content">
+                <div id="loadingText">Processing...</div>
+                <div class="spinner"></div>
             </div>
+        </div>
 
-            <!-- PDF Upload Area -->
-            <div class="upload-section" id="pdfUploadSection">
-                <div class="upload-zone" id="pdfUploadZone">
-                    <div class="upload-content">
-                        <div class="upload-icon">📄</div>
-                        <h3>Drop your PDF here</h3>
-                        <p>or click to browse</p>
-                        <button class="upload-btn">Choose PDF</button>
-                    </div>
-                    <input type="file" id="pdfFileInput" accept=".pdf" hidden>
+        <!-- Image Upload -->
+        <div id="imageSection" class="upload-section">
+            <div class="upload-zone" id="imageUploadZone">
+                <div class="upload-content">
+                    <div class="upload-icon">📁</div>
+                    <h3>Drop your image here</h3>
+                    <p>or click to browse</p>
+                    <button class="upload-btn">Choose Image</button>
                 </div>
+                <input type="file" id="imageInput" accept="image/*" hidden>
             </div>
+        </div>
 
-            <!-- Controls Section -->
-            <div class="controls-section" id="controlsSection" style="display: none;">
-                <div class="controls-card">
-                    <h3>Compression Settings</h3>
-                    
-                    <div class="control-group">
-                        <label for="qualitySlider">Quality: <span id="qualityValue">85</span>%</label>
-                        <input type="range" id="qualitySlider" min="10" max="100" value="85" class="slider">
-                    </div>
-
-                    <div class="control-group">
-                        <label for="formatSelect">Output Format:</label>
-                        <select id="formatSelect" class="select">
-                            <option value="jpeg">JPEG</option>
-                            <option value="png">PNG</option>
-                            <option value="webp">WebP</option>
-                        </select>
-                    </div>
-
-                    <div class="control-group">
-                        <label for="widthInput">Width (px):</label>
-                        <input type="number" id="widthInput" class="input" placeholder="Auto">
-                    </div>
-
-                    <div class="control-group">
-                        <label for="heightInput">Height (px):</label>
-                        <input type="number" id="heightInput" class="input" placeholder="Auto">
-                    </div>
-
-                    <div class="control-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="maintainRatio" checked>
-                            Maintain aspect ratio
-                        </label>
-                    </div>
-
-                    <button id="processBtn" class="process-btn">Process Image</button>
+        <!-- PDF Upload -->
+        <div id="pdfSection" class="upload-section hidden">
+            <div class="upload-zone" id="pdfUploadZone">
+                <div class="upload-content">
+                    <div class="upload-icon">📄</div>
+                    <h3>Drop your PDF here</h3>
+                    <p>or click to browse</p>
+                    <button class="upload-btn">Choose PDF</button>
                 </div>
+                <input type="file" id="pdfInput" accept=".pdf" hidden>
             </div>
+        </div>
 
-            <!-- PDF Controls Section -->
-            <div class="controls-section" id="pdfControlsSection" style="display: none;">
-                <div class="controls-card">
-                    <h3>PDF Compression Settings</h3>
-                    
-                    <div class="control-group">
-                        <label for="pdfQualitySlider">Compression Level: <span id="pdfQualityValue">50</span>%</label>
-                        <input type="range" id="pdfQualitySlider" min="10" max="90" value="50" class="slider">
-                        <small style="color: var(--muted-foreground); font-size: 0.875rem;">Lower = smaller file size</small>
-                    </div>
-
-                    <div class="control-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="pdfOptimizeFonts" checked>
-                            Optimize fonts
-                        </label>
-                    </div>
-
-                    <div class="control-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="pdfFlattenForms" checked>
-                            Flatten forms
-                        </label>
-                    </div>
-
-                    <button id="pdfProcessBtn" class="process-btn">Compress PDF</button>
+        <!-- Image Controls -->
+        <div id="imageControls" class="controls-section hidden">
+            <div class="controls-card">
+                <h3>Image Settings</h3>
+                <div class="control-group">
+                    <label>Quality: <span id="qualityValue">85</span>%</label>
+                    <input type="range" id="qualitySlider" min="10" max="100" value="85" class="slider">
                 </div>
+                <div class="control-group">
+                    <label>Format:</label>
+                    <select id="formatSelect" class="select">
+                        <option value="jpeg">JPEG</option>
+                        <option value="png">PNG</option>
+                        <option value="webp">WebP</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Width (px):</label>
+                    <input type="number" id="widthInput" class="input" placeholder="Auto">
+                </div>
+                <div class="control-group">
+                    <label>Height (px):</label>
+                    <input type="number" id="heightInput" class="input" placeholder="Auto">
+                </div>
+                <div class="control-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="maintainRatio" checked>
+                        Maintain aspect ratio
+                    </label>
+                </div>
+                <button id="processImageBtn" class="process-btn">Process Image</button>
             </div>
+        </div>
 
-            <!-- Preview Section -->
-            <div class="preview-section" id="previewSection" style="display: none;">
-                <div class="preview-card">
-                    <h3>Preview</h3>
-                    
-                    <div class="image-comparison">
-                        <div class="image-container">
-                            <h4>Original</h4>
-                            <img id="originalImage" class="preview-image">
-                            <div class="image-info">
-                                <span id="originalSize"></span>
-                                <span id="originalDimensions"></span>
-                            </div>
-                        </div>
-                        
-                        <div class="image-container">
-                            <h4>Compressed</h4>
-                            <img id="processedImage" class="preview-image">
-                            <div class="image-info">
-                                <span id="processedSize"></span>
-                                <span id="processedDimensions"></span>
-                            </div>
+        <!-- PDF Controls -->
+        <div id="pdfControls" class="controls-section hidden">
+            <div class="controls-card">
+                <h3>PDF Settings</h3>
+                <div class="control-group">
+                    <label>Compression: <span id="pdfQualityValue">50</span>%</label>
+                    <input type="range" id="pdfQualitySlider" min="10" max="90" value="50" class="slider">
+                    <small>Lower = smaller file size</small>
+                </div>
+                <button id="processPdfBtn" class="process-btn">Compress PDF</button>
+            </div>
+        </div>
+
+        <!-- Image Preview -->
+        <div id="imagePreview" class="preview-section hidden">
+            <div class="preview-card">
+                <h3>Image Preview</h3>
+                <div class="image-comparison">
+                    <div class="image-container">
+                        <h4>Original</h4>
+                        <img id="originalImage" class="preview-image">
+                        <div class="image-info">
+                            <span id="originalSize"></span>
+                            <span id="originalDimensions"></span>
                         </div>
                     </div>
-
-                    <div class="stats">
-                        <div class="stat">
-                            <span class="stat-label">Compression Ratio:</span>
-                            <span id="compressionRatio" class="stat-value">-</span>
+                    <div class="image-container">
+                        <h4>Compressed</h4>
+                        <img id="processedImage" class="preview-image">
+                        <div class="image-info">
+                            <span id="processedSize"></span>
+                            <span id="processedDimensions"></span>
                         </div>
-                        <div class="stat">
-                            <span class="stat-label">Size Reduction:</span>
-                            <span id="sizeReduction" class="stat-value">-</span>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button id="downloadBtn" class="download-btn">Download Image</button>
-                        <button id="resetBtn" class="reset-btn">Upload New Image</button>
                     </div>
                 </div>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Compression:</span>
+                        <span id="compressionRatio" class="stat-value">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Size Saved:</span>
+                        <span id="sizeReduction" class="stat-value">-</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="downloadImageBtn" class="download-btn">Download Image</button>
+                    <button onclick="resetToHome()" class="reset-btn">Start Over</button>
+                </div>
             </div>
+        </div>
 
-            <!-- PDF Preview Section -->
-            <div class="preview-section" id="pdfPreviewSection" style="display: none;">
-                <div class="preview-card">
-                    <h3>PDF Compression Results</h3>
-                    
-                    <div class="image-comparison">
-                        <div class="image-container">
-                            <h4>Original PDF</h4>
-                            <div class="pdf-preview" id="pdfOriginalPreview">
-                                <div class="pdf-icon">📄</div>
-                                <div class="pdf-name" id="pdfOriginalName">document.pdf</div>
-                            </div>
-                            <div class="image-info">
-                                <span id="pdfOriginalSize"></span>
-                                <span id="pdfOriginalPages"></span>
-                            </div>
-                        </div>
-                        
-                        <div class="image-container">
-                            <h4>Compressed PDF</h4>
-                            <div class="pdf-preview" id="pdfCompressedPreview">
-                                <div class="pdf-icon">📄</div>
-                                <div class="pdf-name" id="pdfCompressedName">compressed.pdf</div>
-                            </div>
-                            <div class="image-info">
-                                <span id="pdfCompressedSize"></span>
-                                <span id="pdfReduction"></span>
-                            </div>
-                        </div>
+        <!-- PDF Preview -->
+        <div id="pdfPreview" class="preview-section hidden">
+            <div class="preview-card">
+                <h3>PDF Results</h3>
+                <div class="pdf-comparison">
+                    <div class="pdf-container">
+                        <h4>Original PDF</h4>
+                        <div class="pdf-icon">📄</div>
+                        <div id="originalPdfName">document.pdf</div>
+                        <div id="originalPdfSize"></div>
                     </div>
-
-                    <div class="stats">
-                        <div class="stat">
-                            <span class="stat-label">Compression Ratio:</span>
-                            <span id="pdfCompressionRatio" class="stat-value">-</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">Size Reduction:</span>
-                            <span id="pdfSizeReduction" class="stat-value">-</span>
-                        </div>
+                    <div class="pdf-container">
+                        <h4>Compressed PDF</h4>
+                        <div class="pdf-icon">📄</div>
+                        <div id="compressedPdfName">compressed.pdf</div>
+                        <div id="compressedPdfSize"></div>
                     </div>
-
-                    <div class="action-buttons">
-                        <button id="pdfDownloadBtn" class="download-btn">Download PDF</button>
-                        <button id="pdfResetBtn" class="reset-btn">Upload New PDF</button>
+                </div>
+                <div class="stats">
+                    <div class="stat">
+                        <span class="stat-label">Compression:</span>
+                        <span id="pdfCompressionRatio" class="stat-value">-</span>
                     </div>
+                    <div class="stat">
+                        <span class="stat-label">Size Saved:</span>
+                        <span id="pdfSizeReduction" class="stat-value">-</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="downloadPdfBtn" class="download-btn">Download PDF</button>
+                    <button onclick="resetToHome()" class="reset-btn">Start Over</button>
                 </div>
             </div>
         </div>
@@ -250,8 +206,13 @@
     </div>
 
     <script src="main.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="pdf-utils.js"></script>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        if (window.pdfjsLib) {
+            window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+    </script>
 </body>
 </html>
-
