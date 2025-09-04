@@ -144,7 +144,7 @@ Simply open the `index.html` file in your browser to use the tool immediately.
 *Compress smarter, not harder!*
 
 
-Try it out: (https://image-resize-weld.vercel.app/)   
+Try it out: (https://image-pdf-resizer.vercel.app/)
 #WebDevelopment #ImageProcessing #JavaScript #StudentDeveloper #BSCIT #FrontendDevelopment #UIUX #ProductLaunch
 
 
