@@ -46,6 +46,12 @@ body {
     color: var(--foreground);
     min-height: 100vh;
     line-height: 1.6;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+body.loaded {
+    opacity: 1;
 }
 
 .container {
@@ -73,6 +79,37 @@ body {
 .subtitle {
     font-size: 1.25rem;
     color: var(--muted-foreground);
+    margin-bottom: 2rem;
+}
+
+.mode-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.mode-btn {
+    background: transparent;
+    color: var(--foreground);
+    border: 2px solid var(--border);
+    border-radius: 0.5rem;
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+}
+
+.mode-btn.active {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: var(--shadow-elegant);
+}
+
+.mode-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
 }
 
 /* Features */
@@ -113,22 +150,14 @@ body {
     color: var(--muted-foreground);
 }
 
-/* App Container */
-.app-container {
-    display: grid;
-    gap: 2rem;
-    grid-template-columns: 1fr;
-}
-
-@media (min-width: 768px) {
-    .app-container {
-        grid-template-columns: 1fr 1fr;
-    }
+/* Utility Classes */
+.hidden {
+    display: none !important;
 }
 
 /* Upload Section */
 .upload-section {
-    grid-column: 1 / -1;
+    margin-bottom: 2rem;
 }
 
 .upload-zone {
@@ -181,7 +210,11 @@ body {
     box-shadow: var(--shadow-glow);
 }
 
-/* Controls Section */
+/* Controls */
+.controls-section {
+    margin-bottom: 2rem;
+}
+
 .controls-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -253,9 +286,12 @@ body {
 .checkbox-label input[type="checkbox"] {
     width: auto;
 }
-#loadingOverlay {
-  font-weight: 700;
-  letter-spacing: 0.05em;
+
+.control-group small {
+    color: var(--muted-foreground);
+    font-size: 0.875rem;
+    display: block;
+    margin-top: 0.25rem;
 }
 
 .process-btn {
@@ -272,12 +308,21 @@ body {
     box-shadow: var(--shadow-elegant);
 }
 
-.process-btn:hover {
+.process-btn:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: var(--shadow-glow);
 }
 
-/* Preview Section */
+.process-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Preview */
+.preview-section {
+    margin-bottom: 2rem;
+}
+
 .preview-card {
     background: var(--card);
     border: 1px solid var(--border);
@@ -321,6 +366,31 @@ body {
     gap: 0.25rem;
     font-size: 0.875rem;
     color: var(--muted-foreground);
+}
+
+.pdf-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.pdf-container {
+    text-align: center;
+    background: var(--muted);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+}
+
+.pdf-container h4 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.pdf-icon {
+    font-size: 3rem;
+    margin: 1rem 0;
+    opacity: 0.7;
 }
 
 .stats {
@@ -387,6 +457,50 @@ body {
     background: var(--border);
 }
 
+/* Loading Overlay */
+.loading-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.loading-content {
+    background: var(--card);
+    padding: 2rem 3rem;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-card);
+    font-size: 1.25rem;
+    color: var(--foreground);
+    text-align: center;
+}
+
+.spinner {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    border: 4px solid var(--muted);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-top: 1rem;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Footer */
 .footer {
     margin-top: 4rem;
@@ -419,45 +533,14 @@ body {
     font-size: 0.875rem;
 }
 
-/* PDF Preview Styles */
-.pdf-preview {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 200px;
-    background: var(--muted);
-    border-radius: 0.5rem;
-    border: 1px solid var(--border);
-    margin-bottom: 0.5rem;
-}
-
-.pdf-icon {
-    font-size: 4rem;
-    margin-bottom: 0.5rem;
-    opacity: 0.7;
-}
-
-.pdf-name {
-    font-size: 0.875rem;
-    color: var(--muted-foreground);
-    text-align: center;
-    word-break: break-all;
-    padding: 0 1rem;
-}
-
-/* Hide sections initially */
-#pdfUploadSection {
-    display: none;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .title {
         font-size: 2rem;
     }
     
-    .image-comparison {
+    .image-comparison,
+    .pdf-comparison {
         grid-template-columns: 1fr;
     }
     
@@ -468,5 +551,9 @@ body {
     .action-buttons {
         grid-template-columns: 1fr;
     }
+    
+    .mode-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
 }
-
